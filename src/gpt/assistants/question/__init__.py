@@ -44,6 +44,8 @@ async def create_question(topic: str, subtopic: str, prev_answers: list[UserAnsw
 
     gpt_result = await _get_question(topic, subtopic, prev_answers)
 
+    logger.debug("gpt_result=%s", gpt_result)
+
     try:
         data = json.loads(gpt_result)
     except JSONDecodeError as err:

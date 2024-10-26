@@ -10,7 +10,8 @@ class QuizQuestion(BaseModel):
 
     @field_validator("correct_answer")
     def interest_not_empty(cls, v: int, info: ValidationInfo):
-        if v >= len(info.data["answers"]):
+        answers = info.data.get("answers")
+        if answers and v >= len(answers):
             raise ValueError("The answer must be less than the number of answers")
         return v
 
