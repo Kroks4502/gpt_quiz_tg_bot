@@ -2,11 +2,11 @@ import logging
 import os
 import platform
 
-from telethon import TelegramClient, events
-
+from bot.handlers.debug import handle_raw_debug
 from bot.handlers.start import handle_start
 from bot.handlers.stop import handle_stop
 from bot.handlers.unknown import handle_unknown
+from telethon import TelegramClient
 
 logger = logging.getLogger("bot")
 
@@ -21,12 +21,8 @@ client: TelegramClient = TelegramClient(
 )
 
 
-@client.on(events.Raw())
-async def deb(ev):
-    logger.debug("Received Raw event: %s", ev)
-
-
 def setup_handlers():
+    client.add_event_handler(handle_raw_debug)
     client.add_event_handler(handle_start)
     client.add_event_handler(handle_stop)
     client.add_event_handler(handle_unknown)
@@ -35,4 +31,5 @@ def setup_handlers():
 async def run_bot():
     await client.start(bot_token=os.getenv("TG_BOT_TOKEN"))
     setup_handlers()
+
     await client.run_until_disconnected()

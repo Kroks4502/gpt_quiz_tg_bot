@@ -1,6 +1,7 @@
 import logging
 import random
 from asyncio import sleep
+from datetime import datetime
 
 from bot.manager import handlers_manager
 from gpt.assistants.question import UserAnswer, create_question
@@ -20,7 +21,7 @@ from telethon.tl.types import (
 
 logger = logging.getLogger("bot.quiz")
 PERIOD_Q = 15
-SLEEP_DELAY = 2
+SLEEP_DELAY = 5
 
 
 async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
@@ -46,6 +47,8 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
         random_subtopic,
         prev_answers,
     )
+
+    await handlers_manager.remove_all(client, user_id)
 
     question = await create_question(topic, random_subtopic, prev_answers)
     # question = QuizQuestion(title=random_subtopic, answers=["A", "B"], correct_answer=1, solution="solution")
@@ -73,32 +76,49 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
     poll_id = quiz_msg.media.poll.id
     logger.debug("Sent poll: user_id=%s, poll_id=%s", user_id, poll_id)
 
-    async def handle_answer(event: UpdateMessagePoll):
-        logger.debug("Processing answer: user_id=%s, event=%s", user_id, event)
-
+    async def check_answer_and_next(poll: Poll, poll_results: PollResults):
         correct = False
-        for answer in event.results.results:
+        for answer in poll_results.results:
             if answer.voters == 1:
-                if answer.correct:
-                    correct = True
-                break
-        prev_answers.append(UserAnswer(question=event.poll.question.text, correct=correct))
+                correct = answer.correct
+        prev_answers.append(UserAnswer(question=poll.question.text, correct=correct))
         await send_quiz(client, user_id, topic, subtopics, prev_answers)
 
+    async def handle_answer(event: UpdateMessagePoll):
+        logger.debug("Processing answer: user_id=%s, event=%s", user_id, event)
+        await check_answer_and_next(event.poll, event.results)
         raise StopPropagation
 
-    await handlers_manager.remove_all(client, user_id)
     event_answer = events.Raw(
         types=UpdateMessagePoll,
         func=lambda e: quiz_msg.media.poll.id == e.poll_id,
     )
     await handlers_manager.add(client, user_id, handle_answer, event_answer)
 
-    await sleep(close_period + SLEEP_DELAY)
+    async def has_answered() -> bool:
+        logger.debug("Update poll message: user_id=%s, poll_id=%s", user_id, poll_id)
+        upd_quiz_msg = await client.get_messages(user_id, ids=quiz_msg.id)
+        if upd_quiz_msg.media.results.total_voters != 0:
+            await check_answer_and_next(upd_quiz_msg.media.poll, upd_quiz_msg.media.results)
+            return True
+
+        return False
+
+    start_dt = datetime.now()
+    while (datetime.now() - start_dt).seconds < close_period:
+        if not handlers_manager.have_active_handler(user_id, handle_answer, event_answer) or await has_answered():
+            raise StopPropagation
+        await sleep(SLEEP_DELAY)
+
+    if not handlers_manager.have_active_handler(user_id, handle_answer, event_answer) or await has_answered():
+        raise StopPropagation
+
     logger.debug("Time's up: user_id=%s, poll_id=%s", user_id, poll_id)
 
     if handlers_manager.have_active_handler(user_id, handle_answer, event_answer):
         logger.debug("User didn't have time to answer the question: user_id=%s, poll_id=%s", user_id, poll_id)
+
+        await handlers_manager.remove_all(client, user_id)
 
         prev_answers.append(UserAnswer(question=question.title, correct=False))
 
@@ -125,10 +145,9 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
             )
             raise StopPropagation
 
-        await handlers_manager.remove_all(client, user_id)
         await handlers_manager.add(
             client=client,
-            peer=user_id,
+            user_id=user_id,
             callback=handle_continue,
             event=events.NewMessage(
                 pattern="/continue",
@@ -138,7 +157,7 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
         )
         await handlers_manager.add(
             client=client,
-            peer=user_id,
+            user_id=user_id,
             callback=handle_unknown,
             event=events.NewMessage(
                 from_users=user_id,

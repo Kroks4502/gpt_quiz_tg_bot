@@ -6,12 +6,14 @@ class UserHandlerManager:
     def __init__(self):
         self._user_handlers = {}
 
-    async def add(self, client: TelegramClient, peer, callback, event: EventBuilder):
+    async def add(self, client: TelegramClient, user_id, callback, event: EventBuilder):
         client.add_event_handler(callback, event)
-        if not peer in self._user_handlers:
-            self._user_handlers[peer] = [(callback, event)]
+
+        if not user_id in self._user_handlers:
+            self._user_handlers[user_id] = [(callback, event)]
         else:
-            self._user_handlers[peer].append((callback, event))
+            self._user_handlers[user_id].append((callback, event))
+
         await client.catch_up()
 
     async def remove_all(self, client: TelegramClient, user_id) -> int:
@@ -20,13 +22,18 @@ class UserHandlerManager:
             return 0
 
         for callback, event in handlers:
-            client.remove_event_handler(callback, event)
+            i = len(client._event_builders)
+            while i:
+                i -= 1
+                ev, cb = client._event_builders[i]
+                if cb is callback and ev is event:
+                    del client._event_builders[i]
 
         await client.catch_up()
 
         return len(handlers)
 
-    def have_active_handler(self, user_id, callback = None, event: EventBuilder = None) -> bool:
+    def have_active_handler(self, user_id, callback=None, event: EventBuilder = None) -> bool:
         handlers = self._user_handlers.get(user_id, None)
 
         if not handlers:
@@ -36,7 +43,7 @@ class UserHandlerManager:
             return True
         else:
             for cb, ev in handlers:
-                if cb == callback and ev == event:
+                if cb is callback and ev is event:
                     return True
 
         return False
