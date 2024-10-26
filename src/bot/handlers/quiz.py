@@ -22,6 +22,7 @@ from telethon.tl.types import (
 logger = logging.getLogger("bot.quiz")
 PERIOD_Q = 15
 SLEEP_DELAY = 5
+MAX_PREV_ANSWER = 20
 
 
 async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
@@ -49,6 +50,9 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
     )
 
     await handlers_manager.remove_all(client, user_id)
+
+    if len(prev_answers) > MAX_PREV_ANSWER:
+        prev_answers = prev_answers[1:]
 
     question = await create_question(topic, random_subtopic, prev_answers)
     # question = QuizQuestion(title=random_subtopic, answers=["A", "B"], correct_answer=1, solution="solution")
