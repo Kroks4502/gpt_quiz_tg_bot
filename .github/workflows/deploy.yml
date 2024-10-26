@@ -1,0 +1,42 @@
+name: deploy
+
+on:
+  push:
+    branches:
+     - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.HOST_USER }}
+          key: ${{ secrets.HOST_KEY }}
+          script_stop: true
+          script: |
+            systemctl stop gpt_quiz_tg_bot
+            
+            cd gpt_quiz_tg_bot/
+            
+            git reset --hard HEAD
+            git checkout ${{ github.ref_name }}
+            git pull
+            
+            source venv/bin/activate
+            pip install -r requirements.txt
+            
+            systemctl start gpt_quiz_tg_bot
+  send_message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: send message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: ${{ github.repository }} -> ${{ github.workflow }} -> ${{ github.ref_name }} deploy was successful
