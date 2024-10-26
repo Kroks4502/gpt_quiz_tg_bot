@@ -2,8 +2,8 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from src.config import configure_logging
-from src.constants import ENV_FILE
+from config import configure_logging
+from constants import ENV_FILE
 
 if __name__ == '__main__':
     configure_logging()

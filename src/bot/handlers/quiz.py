@@ -3,7 +3,7 @@ import random
 from asyncio import sleep
 
 from bot.manager import handlers_manager
-from gpt.assistants.question import QuizQuestion, UserAnswer, create_question
+from gpt.assistants.question import UserAnswer, create_question
 from gpt.assistants.subtopic import create_subtopics
 from telethon import TelegramClient, events
 from telethon.events import StopPropagation
