@@ -20,18 +20,24 @@ class OpenAi(BaseModel):
     api_key: SecretStr
 
 
+class Database(BaseModel):
+    dsn: SecretStr
+    echo_sql: bool = True
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
     telegram: TelegramBot
     openai: OpenAi
+    database: Database
 
 
 logger = logging.getLogger("app.settings")
 
 
 try:
-    settings = Settings()
+    settings: Settings = Settings()
 except ValidationError as exc:
 
     def loc_to_dot_sep(loc) -> str:

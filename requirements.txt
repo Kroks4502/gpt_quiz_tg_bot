@@ -5,3 +5,7 @@ PyYAML==6.0.2
 python-dotenv==1.0.1
 pydantic==2.9.2
 pydantic-settings==2.6.0
+alembic==1.11.1
+SQLAlchemy==2.0.16
+sqlalchemy-utils==0.41.1
+asyncpg==0.28.0

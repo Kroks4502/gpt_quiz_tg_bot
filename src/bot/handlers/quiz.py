@@ -4,8 +4,11 @@ from asyncio import sleep
 from datetime import datetime
 
 from bot.manager import handlers_manager
+from db.decorators import use_async_session_context
+from db.models import UserTopic
 from gpt.assistants.question import UserAnswer, create_question
 from gpt.assistants.subtopic import create_subtopics
+from sqlalchemy.ext.asyncio import AsyncSession
 from telethon import TelegramClient, events
 from telethon.events import StopPropagation
 from telethon.tl import custom
@@ -35,6 +38,8 @@ async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
     subtopics = await create_subtopics(topic)
     # subtopics = [topic]
     logger.debug("Subtopics created: user_id=%s, topic=%s, subtopics=%s", user_id, topic, subtopics)
+
+    await register_user_subtopics(user_id=user_id, topic=topic, subtopics=subtopics)
 
     await send_quiz(client, user_id, topic, subtopics, [])
 
@@ -170,3 +175,15 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
         )
 
     raise StopPropagation
+
+
+@use_async_session_context
+async def register_user_subtopics(session: AsyncSession, user_id: int, topic: str, subtopics: list[str]) -> None:
+    session.add(
+        UserTopic(
+            user_id=user_id,
+            topic=topic,
+            subtopics=subtopics,
+        )
+    )
+    await session.commit()

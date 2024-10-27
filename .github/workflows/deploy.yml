@@ -29,6 +29,8 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             
+            scripts/run_migrations.sh
+            
             systemctl start gpt_quiz_tg_bot
   send_message:
     runs-on: ubuntu-latest
