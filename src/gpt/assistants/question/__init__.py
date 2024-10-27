@@ -4,7 +4,7 @@ import random
 from json import JSONDecodeError
 from pathlib import Path
 
-from gpt.assistants.question.models import QuizQuestion, QuizQuestionGpt, UserAnswer
+from gpt.assistants.question.schemas import QuizQuestion, QuizQuestionGpt, UserAnswer
 from gpt.client import client
 from openai import LengthFinishReasonError, OpenAIError
 from pydantic import ValidationError

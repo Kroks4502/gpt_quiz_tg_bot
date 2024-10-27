@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from gpt.assistants.subtopic.models import Topics
+from gpt.assistants.subtopic.schemas import Topics
 from gpt.client import client
 from openai import LengthFinishReasonError, OpenAIError
 

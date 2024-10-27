@@ -1,5 +1,3 @@
-import logging
-import os
 import platform
 
 from bot.handlers.debug import handle_raw_debug
@@ -8,12 +6,12 @@ from bot.handlers.stop import handle_stop
 from bot.handlers.unknown import handle_unknown
 from telethon import TelegramClient
 
-logger = logging.getLogger("bot")
+from config import settings
 
 client: TelegramClient = TelegramClient(
     session="eng_gpt_bot",
-    api_id=int(os.getenv("TG_API_ID")),
-    api_hash=os.getenv("TG_API_HASH"),
+    api_id=settings.telegram.api_id.get_secret_value(),
+    api_hash=settings.telegram.api_hash.get_secret_value(),
     auto_reconnect=True,
     device_model=f"{platform.python_implementation()} {platform.python_version()}",
     system_version=f"{platform.system()} {platform.release()}",
@@ -29,7 +27,7 @@ def setup_handlers():
 
 
 async def run_bot():
-    await client.start(bot_token=os.getenv("TG_BOT_TOKEN"))
+    await client.start(bot_token=settings.telegram.bot_token.get_secret_value())
     setup_handlers()
 
     await client.run_until_disconnected()

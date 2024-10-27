@@ -1,14 +1,9 @@
 import asyncio
 
-from config import configure_logging
-from constants import ENV_FILE
-from dotenv import load_dotenv
+from log import configure_logging
 
 if __name__ == "__main__":
     configure_logging()
-
-    if ENV_FILE.exists() and ENV_FILE.is_file():
-        load_dotenv(ENV_FILE)
 
     from bot.client import run_bot
 

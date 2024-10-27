@@ -1,9 +1,5 @@
-import logging
-import os
-
 from openai import AsyncOpenAI
 
-logger = logging.getLogger("gpt")
-logger.setLevel(logging.DEBUG)
+from config import settings
 
-client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = AsyncOpenAI(api_key=settings.openai.api_key.get_secret_value())
