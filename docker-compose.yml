@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: dev-user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev_db
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data:cached
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python src/main.py
+    tty: true
+    volumes:
+      - .:/backend/:cached
+      - ./.docker/.ipython:/root/.ipython:cached
+    environment:
+      PYTHONPATH: ./src
+    depends_on:
+      - "postgres"
+
+volumes:
+  db-data:
