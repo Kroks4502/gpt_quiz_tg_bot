@@ -3,9 +3,11 @@ import random
 from asyncio import sleep
 from datetime import datetime
 
+from bot.handlers.menu.constants import Mode
 from bot.manager import handlers_manager
 from db.decorators import use_async_session_context
-from db.models import UserTopic
+from db.manager import sessionmanager
+from db.models import User, UserTopic
 from gpt.assistants.question import UserAnswer, create_question
 from gpt.assistants.subtopic import create_subtopics
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,8 +37,13 @@ async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
     logger.debug("Processing quiz topic: user_id=%s", user_id)
 
     topic = event.text
-    subtopics = await create_subtopics(topic)
-    # subtopics = [topic]
+
+    async with sessionmanager.session() as session:
+        session: AsyncSession
+        user = await session.get(User, event.sender_id)
+        await session.commit()
+
+    subtopics = await create_subtopics(topic) if user.bot_mode == Mode.COMPLEX else []
     logger.debug("Subtopics created: user_id=%s, topic=%s, subtopics=%s", user_id, topic, subtopics)
 
     await register_user_subtopics(user_id=user_id, topic=topic, subtopics=subtopics)
@@ -45,7 +52,7 @@ async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
 
 
 async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list[str], prev_answers: list[UserAnswer]):
-    random_subtopic = random.choice(subtopics)
+    random_subtopic = random.choice(subtopics) if subtopics else None
     logger.info(
         "Creating quiz: user_id=%s, topic=%s, random_subtopic=%s, prev_answers=%s",
         user_id,

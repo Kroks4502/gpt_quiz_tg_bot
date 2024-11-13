@@ -1,6 +1,8 @@
 import platform
 
 from bot.handlers.debug import handle_raw_debug
+from bot.handlers.menu.main import handle_menu
+from bot.handlers.menu.mode import handle_mode, handle_mode_set_simple, handle_mode_set_complex
 from bot.handlers.start import handle_start
 from bot.handlers.stop import handle_stop
 from bot.handlers.unknown import handle_unknown
@@ -21,8 +23,16 @@ client: TelegramClient = TelegramClient(
 
 def setup_handlers():
     client.add_event_handler(handle_raw_debug)
+
     client.add_event_handler(handle_start)
     client.add_event_handler(handle_stop)
+
+    client.add_event_handler(handle_menu)
+
+    client.add_event_handler(handle_mode)
+    client.add_event_handler(handle_mode_set_simple)
+    client.add_event_handler(handle_mode_set_complex)
+
     client.add_event_handler(handle_unknown)
 
 

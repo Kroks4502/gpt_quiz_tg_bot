@@ -47,7 +47,7 @@ logger = logging.getLogger(f"gpt.{ASSISTANT_NAME}")
 
 async def create_question(
     topic: str,
-    subtopic: str,
+    subtopic: str | None,
     prev_answers: list[UserAnswer],
     *,
     attempt: int = 0,
@@ -74,7 +74,7 @@ async def create_question(
         },
         {
             "role": "user",
-            "content": PROMPT_USER.format(topic=topic, subtopic=subtopic),
+            "content": PROMPT_USER.format(topic=topic, subtopic=subtopic) if subtopic else topic,
         },
     ]
 

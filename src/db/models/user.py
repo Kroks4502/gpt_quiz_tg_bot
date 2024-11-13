@@ -1,3 +1,4 @@
+from bot.handlers.menu.constants import Mode
 from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -8,6 +9,7 @@ from . import Base
 class User(Base):
     __tablename__ = "user"
 
+    # TG attrs
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
@@ -15,6 +17,9 @@ class User(Base):
     phone: Mapped[str] = mapped_column(nullable=True)
     lang_code: Mapped[str] = mapped_column(nullable=True)
     usernames: Mapped[str] = mapped_column(nullable=True)
+
+    # Bot attrs
+    bot_mode: Mapped[str] = mapped_column(nullable=False, default=Mode.COMPLEX)
 
 
 class UserTopic(Base):
