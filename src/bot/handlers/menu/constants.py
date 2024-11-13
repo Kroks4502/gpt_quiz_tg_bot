@@ -1,7 +1,7 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class Mode(StrEnum):
+class Mode(str, Enum):
     SIMPLE = "simple"
     COMPLEX = "complex"
 
