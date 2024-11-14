@@ -71,7 +71,7 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
         prev_answers = prev_answers[1:]
 
     question = await create_question(topic, random_subtopic, prev_answers)
-    # question = QuizQuestion(title=random_subtopic, answers=["A", "B"], correct_answer=1, solution="solution")
+
     close_period = len(question.answers) * PERIOD_Q
     quiz_msg = await client.send_message(
         entity=user_id,
@@ -96,7 +96,12 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
     poll_id = quiz_msg.media.poll.id
     logger.debug("Sent poll: user_id=%s, poll_id=%s", user_id, poll_id)
 
+    is_answered = False
     async def check_answer_and_next(poll: Poll, poll_results: PollResults):
+        nonlocal is_answered
+        if is_answered:
+            return
+        is_answered = True
         correct = False
         for answer in poll_results.results:
             if answer.voters == 1:
