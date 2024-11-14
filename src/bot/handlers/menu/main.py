@@ -26,6 +26,6 @@ def get_main_menu_buttons():
     return dict(
         buttons=[
             [Button.inline(text=f"{Icon.SETTINGS} Режим квиза", data=CQ_DATA_MODE)],
-            [Button.inline(text=f"{Icon.REPEAT} Предыдущие темы", data=CQ_DATA_TOPIC)],
+            [Button.inline(text=f"{Icon.REPEAT} Предыдущие темы", data=f"{CQ_DATA_TOPIC}.0")],
         ]
     )

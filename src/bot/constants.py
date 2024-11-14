@@ -13,6 +13,9 @@ class Icon(str, Enum):
     TRUE = "✅"
     FALSE = "☑️"
 
+    PREV = "⬅️"
+    NEXT = "➡️"
+
 
 CQ_DATA_MODE = "mode"
 CQ_DATA_MODE_SIMPLE = f"{CQ_DATA_MODE}.{Mode.SIMPLE}"
