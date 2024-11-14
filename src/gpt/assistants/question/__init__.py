@@ -36,6 +36,12 @@ PROMPT_DIR = Path(__file__).parent / "prompt"
 with open(PROMPT_DIR / "system", "r") as file:
     PROMPT_SYS = file.read()
 
+with open(PROMPT_DIR / "prev-answers-correct", "r") as file:
+    PROMPT_PREV_ANS_CORRECT = file.read()
+
+with open(PROMPT_DIR / "prev-answers-incorrect", "r") as file:
+    PROMPT_PREV_ANS_INCORRECT = file.read()
+
 with open(PROMPT_DIR / "not-repeat", "r") as file:
     PROMPT_NOT_REPEAT = file.read()
 
@@ -127,9 +133,19 @@ def _get_system_prompt(prev_answers: list[UserAnswer], number: str):
     prompt = [PROMPT_SYS.format(number=number)]
 
     if prev_answers:
-        prompt.append(PROMPT_NOT_REPEAT.format(prev_answers="\n- ".join([a.question for a in prev_answers])))
+        correct = []
+        incorrect = []
 
-    return "\n\n".join(prompt)
+        for answer in prev_answers:
+            (correct if answer.correct else incorrect).append(answer.question)
+
+        if correct:
+            prompt.append(PROMPT_PREV_ANS_CORRECT.format(prev_answers="\n- ".join(correct)))
+        if incorrect:
+            prompt.append(PROMPT_PREV_ANS_INCORRECT.format(prev_answers="\n- ".join(incorrect)))
+        prompt.append(PROMPT_NOT_REPEAT)
+
+    return "\n".join(prompt)
 
 
 async def register_assistant_history(

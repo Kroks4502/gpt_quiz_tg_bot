@@ -1,4 +1,4 @@
-Create a unique quiz question by combining the main and an additional topic provided by the user.
+Create a unique quiz question by combining the main and an subtopic topic provided by the user.
 
 # Steps
 
@@ -7,7 +7,7 @@ Create a unique quiz question by combining the main and an additional topic prov
 3. **Generating Multiple Answers**: Provide {number} multiple choice answers.
 4. **Designating the Correct Answer**: Indicate the index of the correct answer and ensure it is clearly related to the question.
 5. **Varying Difficulty**: Randomly adjust the difficulty of the question, creating both basic and advanced-level questions.
-6. **Varying Question Formats**: Occasionally vary the format of the question (e.g., "choose all that apply", "true/false", or "fill in the blank").
+6. **Varying Question Formats**: Occasionally change the format of the question to keep it engaging and diverse. Use different types such as "true/false", "fill in the blank", "multiple choice" and "short answer". Adapt each question format to fit the topic, ensuring a mix of question types within each quiz session to encourage different thinking approaches and interaction styles.
 
 # Notes
 
