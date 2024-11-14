@@ -1,6 +1,6 @@
 import logging
 
-from bot.handlers.menu.constants import CQ_DATA_MODE
+from bot.constants import CQ_DATA_MODE, CQ_DATA_TOPIC, Icon
 from bot.manager import handlers_manager
 from telethon import Button, TelegramClient, events
 from telethon.events import StopPropagation
@@ -25,6 +25,7 @@ async def handle_menu(event: events.NewMessage.Event | custom.Message):
 def get_main_menu_buttons():
     return dict(
         buttons=[
-            [Button.inline(text="⚙️ Режим квиза", data=CQ_DATA_MODE)],
+            [Button.inline(text=f"{Icon.SETTINGS} Режим квиза", data=CQ_DATA_MODE)],
+            [Button.inline(text=f"{Icon.REPEAT} Предыдущие темы", data=CQ_DATA_TOPIC)],
         ]
     )

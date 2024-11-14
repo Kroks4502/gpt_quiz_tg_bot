@@ -1,4 +1,4 @@
-from bot.handlers.menu.constants import Mode
+from bot.constants import Mode
 from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column

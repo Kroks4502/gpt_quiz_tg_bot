@@ -2,13 +2,13 @@ import platform
 
 from bot.handlers.debug import handle_raw_debug
 from bot.handlers.menu.main import handle_menu
-from bot.handlers.menu.mode import handle_mode, handle_mode_set_simple, handle_mode_set_complex
+from bot.handlers.menu.mode import handle_menu_mode, handle_menu_mode_set_complex, handle_menu_mode_set_simple
+from bot.handlers.menu.topics import handle_menu_choice_topic, handle_menu_topics
 from bot.handlers.start import handle_start
 from bot.handlers.stop import handle_stop
 from bot.handlers.unknown import handle_unknown
-from telethon import TelegramClient
-
 from config import settings
+from telethon import TelegramClient
 
 client: TelegramClient = TelegramClient(
     session="eng_gpt_bot",
@@ -28,10 +28,11 @@ def setup_handlers():
     client.add_event_handler(handle_stop)
 
     client.add_event_handler(handle_menu)
-
-    client.add_event_handler(handle_mode)
-    client.add_event_handler(handle_mode_set_simple)
-    client.add_event_handler(handle_mode_set_complex)
+    client.add_event_handler(handle_menu_mode)
+    client.add_event_handler(handle_menu_mode_set_simple)
+    client.add_event_handler(handle_menu_mode_set_complex)
+    client.add_event_handler(handle_menu_topics)
+    client.add_event_handler(handle_menu_choice_topic)
 
     client.add_event_handler(handle_unknown)
 

@@ -3,7 +3,7 @@ import random
 from asyncio import sleep
 from datetime import datetime
 
-from bot.handlers.menu.constants import Mode
+from bot.constants import Mode
 from bot.manager import handlers_manager
 from db.decorators import use_async_session_context
 from db.manager import sessionmanager
@@ -38,9 +38,13 @@ async def handle_quiz_topic(event: events.NewMessage.Event | custom.Message):
 
     topic = event.text
 
+    await process_quiz(client, user_id, topic)
+
+
+async def process_quiz(client: TelegramClient, user_id: int, topic: str):
     async with sessionmanager.session() as session:
         session: AsyncSession
-        user = await session.get(User, event.sender_id)
+        user = await session.get(User, user_id)
         await session.commit()
 
     subtopics = await create_subtopics(topic) if user.bot_mode == Mode.COMPLEX else []
