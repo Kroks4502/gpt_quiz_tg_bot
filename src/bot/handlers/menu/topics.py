@@ -1,4 +1,4 @@
-from bot.constants import CQ_DATA_TOPIC, Icon
+from bot.constants import CQ_DATA_TOPIC, MAIN_MENU_BUTTON, Icon
 from bot.handlers.quiz import process_quiz
 from db.manager import sessionmanager
 from db.models import UserTopic
@@ -16,9 +16,10 @@ async def handle_menu_topics(event: events.CallbackQuery.Event):
 
     offset = int(event.data_match.group(1))
     stmt = (
-        select(func.min(UserTopic.id).label("id"), UserTopic.topic.label("topic"))
+        select(UserTopic.topic.label("topic"), func.min(UserTopic.id).label("id"))
         .where(UserTopic.user_id == event.sender_id)
         .group_by(UserTopic.topic)
+        .order_by(func.min(UserTopic.id).desc())
         .limit(PAGE_SIZE)
         .offset(offset)
     )
@@ -32,13 +33,11 @@ async def handle_menu_topics(event: events.CallbackQuery.Event):
         )
         total_count = (await session.execute(count_stmt)).scalar()
 
-    bottom_buttons = []
+    buttons.append([MAIN_MENU_BUTTON])
     if offset > 0:
-        bottom_buttons.append(Button.inline(text=Icon.PREV, data=f"{CQ_DATA_TOPIC}.{offset - PAGE_SIZE}"))
+        buttons[-1].append(Button.inline(text=Icon.PREV, data=f"{CQ_DATA_TOPIC}.{offset - PAGE_SIZE}"))
     if total_count > offset + PAGE_SIZE:
-        bottom_buttons.append(Button.inline(text=Icon.NEXT, data=f"{CQ_DATA_TOPIC}.{offset + PAGE_SIZE}"))
-    if bottom_buttons:
-        buttons.append(bottom_buttons)
+        buttons[-1].append(Button.inline(text=Icon.NEXT, data=f"{CQ_DATA_TOPIC}.{offset + PAGE_SIZE}"))
 
     await client.edit_message(
         event.sender_id,

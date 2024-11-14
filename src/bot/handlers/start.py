@@ -1,5 +1,6 @@
 import logging
 
+from bot.constants import CQ_DATA_START, MAIN_MENU_BUTTON
 from bot.handlers.quiz import handle_quiz_topic
 from bot.manager import handlers_manager
 from db.decorators import use_async_session_context
@@ -25,7 +26,29 @@ async def handle_start(event: events.NewMessage.Event | custom.Message):
     await handlers_manager.remove_all(client, user_id)
     await handlers_manager.add(client, user_id, handle_quiz_topic, events.NewMessage(from_users=user_id, incoming=True))
 
-    await event.respond("Придумай тему для квиза и отправь мне!")
+    await event.respond("Придумай тему для квиза и отправь мне сообщение!", buttons=[[MAIN_MENU_BUTTON]])
+
+    raise StopPropagation
+
+
+@events.register(events.CallbackQuery(pattern=CQ_DATA_START))
+async def handle_start_cq(event: events.CallbackQuery.Event):
+    client: TelegramClient = event.client
+    user_id = event.sender_id
+
+    logger.debug("Processing command /start: user_id=%s", user_id)
+
+    await register_user(event=event)
+
+    await handlers_manager.remove_all(client, user_id)
+    await handlers_manager.add(client, user_id, handle_quiz_topic, events.NewMessage(from_users=user_id, incoming=True))
+
+    await client.edit_message(
+        event.sender_id,
+        event.message_id,
+        "Придумай тему для квиза и отправь мне сообщение!",
+        buttons=[[MAIN_MENU_BUTTON]],
+    )
 
     raise StopPropagation
 

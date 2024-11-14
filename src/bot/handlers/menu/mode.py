@@ -1,4 +1,4 @@
-from bot.constants import CQ_DATA_MODE, CQ_DATA_MODE_COMPLEX, CQ_DATA_MODE_SIMPLE, Icon, Mode
+from bot.constants import CQ_DATA_MODE, CQ_DATA_MODE_COMPLEX, CQ_DATA_MODE_SIMPLE, MAIN_MENU_BUTTON, Icon, Mode
 from db.manager import sessionmanager
 from db.models import User
 from sqlalchemy import update
@@ -26,10 +26,11 @@ async def handle_menu_mode(event: events.CallbackQuery.Event):
     await client.edit_message(
         event.sender_id,
         event.message_id,
-        "Квиз-бот для создания вопросов может использовать больше тем на основе предложенной вами.\n\nВыберите режим:",
+        "Квиз-бот может использовать больше тем на основе предложенной вами.\n\nВыберите режим:",
         buttons=[
             [Button.inline(text=f"{icon_simple} Строго придерживаться темы", data=CQ_DATA_MODE_SIMPLE)],
             [Button.inline(text=f"{icon_complex}️ Трактовать тему более широко", data=CQ_DATA_MODE_COMPLEX)],
+            [MAIN_MENU_BUTTON],
         ],
     )
 
@@ -49,6 +50,7 @@ async def handle_menu_mode_set_simple(event: events.CallbackQuery.Event):
         event.sender_id,
         event.message_id,
         f"{Icon.TRUE} Квиз-бот будет генерировать вопросы только по теме, которую вы предложите.",
+        buttons=[[MAIN_MENU_BUTTON]],
     )
 
     raise StopPropagation
@@ -67,6 +69,7 @@ async def handle_menu_mode_set_complex(event: events.CallbackQuery.Event):
         event.sender_id,
         event.message_id,
         f"{Icon.TRUE} Квиз-бот будет широко трактовать тему, которую вы предложите.",
+        buttons=[[MAIN_MENU_BUTTON]],
     )
 
     raise StopPropagation

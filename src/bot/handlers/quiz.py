@@ -3,7 +3,7 @@ import random
 from asyncio import sleep
 from datetime import datetime
 
-from bot.constants import Mode
+from bot.constants import MAIN_MENU_BUTTON, NEW_QUIZ_BUTTON, Mode
 from bot.manager import handlers_manager
 from db.decorators import use_async_session_context
 from db.manager import sessionmanager
@@ -97,6 +97,7 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
     logger.debug("Sent poll: user_id=%s, poll_id=%s", user_id, poll_id)
 
     is_answered = False
+
     async def check_answer_and_next(poll: Poll, poll_results: PollResults):
         nonlocal is_answered
         if is_answered:
@@ -151,8 +152,9 @@ async def send_quiz(client: TelegramClient, user_id, topic: str, subtopics: list
             entity=user_id,
             message=(
                 f"Ой, время вышло. Твой текущий результат {len([a for a in prev_answers if a.correct])}"
-                f"/{len(prev_answers)}, но ты можешь продолжить /continue или начать новый квиз /start"
+                f"/{len(prev_answers)}, но ты можешь продолжить /continue или начать новый квиз"
             ),
+            buttons=[[NEW_QUIZ_BUTTON], [MAIN_MENU_BUTTON]],
         )
 
         async def handle_continue(_):

@@ -1,10 +1,10 @@
 import platform
 
 from bot.handlers.debug import handle_raw_debug
-from bot.handlers.menu.main import handle_menu
+from bot.handlers.menu.main import handle_menu, handle_menu_cq
 from bot.handlers.menu.mode import handle_menu_mode, handle_menu_mode_set_complex, handle_menu_mode_set_simple
 from bot.handlers.menu.topics import handle_menu_choice_topic, handle_menu_topics
-from bot.handlers.start import handle_start
+from bot.handlers.start import handle_start, handle_start_cq
 from bot.handlers.stop import handle_stop
 from bot.handlers.unknown import handle_unknown
 from config import settings
@@ -26,8 +26,10 @@ def setup_handlers():
 
     client.add_event_handler(handle_start)
     client.add_event_handler(handle_stop)
-
     client.add_event_handler(handle_menu)
+
+    client.add_event_handler(handle_menu_cq)
+    client.add_event_handler(handle_start_cq)
     client.add_event_handler(handle_menu_mode)
     client.add_event_handler(handle_menu_mode_set_simple)
     client.add_event_handler(handle_menu_mode_set_complex)
